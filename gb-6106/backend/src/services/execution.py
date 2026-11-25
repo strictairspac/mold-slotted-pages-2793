@@ -9,6 +9,7 @@ from src.domain import scenario
 from src.models.cases import cases
 from src.models.runs import runs
 from src.services.audit import record
+from src.services import trace
 from src.utils.serial import content_digest
 
 logger = logging.getLogger(__name__)
@@ -57,4 +58,7 @@ def fail(job_failure):
 
 def finish(db, run_id, output):
     db.execute(update(runs).where(runs.c.id == run_id).values(**output, finished_at=int(time())))
+    # Publish the batch's final slots in the same transaction as its result so
+    # a batch is immediately traceable once its status leaves the queue.
+    trace.index_run(db, run_id, output["status"], output.get("result"))
     record(db, str(output["status"]), "worker", "run", run_id)

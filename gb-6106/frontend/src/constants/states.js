@@ -4,4 +4,5 @@ export const States = Object.freeze({
 
 export const Actions = Object.freeze({
   create_case: "登记资料", enqueue: "提交执行", done: "执行完成", failed: "执行失败", review: "复核签署",
+  trace_backfill: "追溯回填",
 });
